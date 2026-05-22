@@ -410,6 +410,8 @@ buyBtn.onclick = () => {
 
     sellBtn.classList.remove("active");
 
+    calculateTrade();
+
 };
 
 
@@ -422,6 +424,8 @@ sellBtn.onclick = () => {
     sellBtn.classList.add("active");
 
     buyBtn.classList.remove("active");
+
+    calculateTrade();
 
 };
 
@@ -615,13 +619,13 @@ function calculateTrade(){
 
     const rr =
     (profit / loss)
-    .toFixed(2);
+    .toFixed(5);
 
     const margin =
     (
     (entry * qty)
     / leverage
-    ).toFixed(2);
+    );
 
     const liquidation =
     position === "BUY"
@@ -631,35 +635,35 @@ function calculateTrade(){
     (
     entry -
     (entry / leverage)
-    ).toFixed(2)
+    )
 
     :
 
     (
     entry +
     (entry / leverage)
-    ).toFixed(2);
+    );
 
 
     document.getElementById("tpPrice")
     .innerText =
     "$" +
-    tpPrice.toFixed(2);
+    tpPrice.toFixed(5);
 
     document.getElementById("slPrice")
     .innerText =
     "$" +
-    slPrice.toFixed(2);
+    slPrice.toFixed(5);
 
     document.getElementById("profit")
     .innerText =
     "$" +
-    profit.toFixed(2);
+    profit.toFixed(5);
 
     document.getElementById("loss")
     .innerText =
     "$" +
-    loss.toFixed(2);
+    loss.toFixed(5);
 
     document.getElementById("rr")
     .innerText =
@@ -667,11 +671,13 @@ function calculateTrade(){
 
     document.getElementById("margin")
     .innerText =
-    "$" + margin;
+    "$" +
+    margin.toFixed(5);
 
     document.getElementById("liq")
     .innerText =
-    "$" + liquidation;
+    "$" +
+    liquidation.toFixed(5);
 
 }
 
