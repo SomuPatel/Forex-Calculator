@@ -380,28 +380,33 @@ input,select{
 
 <script>
 
-let position = localStorage.getItem("position") || "BUY";
+let position =
+localStorage.getItem("position")
+|| "BUY";
 
-const buyBtn = document.getElementById("buyBtn");
-const sellBtn = document.getElementById("sellBtn");
+const buyBtn =
+document.getElementById("buyBtn");
+
+const sellBtn =
+document.getElementById("sellBtn");
 
 
-// RESTORE BUTTON STATE
+// BUTTON STATE
 
 if(position === "BUY"){
 
     buyBtn.classList.add("active");
-    sellBtn.classList.remove("active");
 
 }else{
 
     sellBtn.classList.add("active");
+
     buyBtn.classList.remove("active");
 
 }
 
 
-// BUY BUTTON
+// BUY
 
 buyBtn.addEventListener("click", () => {
 
@@ -413,6 +418,7 @@ buyBtn.addEventListener("click", () => {
     );
 
     buyBtn.classList.add("active");
+
     sellBtn.classList.remove("active");
 
     calculateTrade();
@@ -420,7 +426,7 @@ buyBtn.addEventListener("click", () => {
 });
 
 
-// SELL BUTTON
+// SELL
 
 sellBtn.addEventListener("click", () => {
 
@@ -432,6 +438,7 @@ sellBtn.addEventListener("click", () => {
     );
 
     sellBtn.classList.add("active");
+
     buyBtn.classList.remove("active");
 
     calculateTrade();
@@ -439,7 +446,7 @@ sellBtn.addEventListener("click", () => {
 });
 
 
-// LOCAL STORAGE FIELDS
+// SAVE FIELDS
 
 const fields = [
 
@@ -454,13 +461,12 @@ const fields = [
 
 ];
 
-
-// RESTORE VALUES
-
 fields.forEach(id => {
 
     const el =
     document.getElementById(id);
+
+    // RESTORE
 
     const saved =
     localStorage.getItem(id);
@@ -471,15 +477,7 @@ fields.forEach(id => {
 
     }
 
-});
-
-
-// SAVE VALUES
-
-fields.forEach(id => {
-
-    const el =
-    document.getElementById(id);
+    // SAVE
 
     el.addEventListener(
     "input",
@@ -492,59 +490,37 @@ fields.forEach(id => {
 
     });
 
-    el.addEventListener(
-    "change",
-    () => {
-
-        localStorage.setItem(
-        id,
-        el.value
-        );
-
-        if(id === "asset"){
-
-            fetchLivePrice();
-
-        }
-
-        calculateTrade();
-
-    });
-
 });
 
 
-// LIVE PRICE
+// LIVE PRICE FUNCTION
 
 async function fetchLivePrice(){
 
     const asset =
     document.getElementById("asset").value;
 
-    try{
+    const livePrice =
+    document.getElementById("livePrice");
 
-        let url = "";
+    try{
 
         // BTC
 
         if(asset === "BTCUSDT"){
 
-            url =
-            "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
+            const response =
+            await fetch(
+            "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+            );
 
-        }
+            const data =
+            await response.json();
 
-        // SILVER
-
-        else if(asset === "XAGUSDT"){
-
-            // Demo price because Binance unsupported
-
-            document.getElementById("livePrice")
-            .innerText =
-            "$75.56";
-
-            return;
+            livePrice.innerText =
+            "$" +
+            parseFloat(data.price)
+            .toLocaleString();
 
         }
 
@@ -552,43 +528,72 @@ async function fetchLivePrice(){
 
         else if(asset === "XAUUSDT"){
 
-            // Demo price because Binance unsupported
+            const response =
+            await fetch(
+            "https://www.goldapi.io/api/XAU/USD",
+            {
+                method:"GET",
 
-            document.getElementById("livePrice")
-            .innerText =
-            "$4509.72";
+                headers:{
 
-            return;
+                    "x-access-token":
+                    "goldapi-cbc3ae5ebee5a95fad4327139ca82f34-io",
 
-        }
+                    "Content-Type":
+                    "application/json"
 
-        const response =
-        await fetch(url);
+                }
 
-        const data =
-        await response.json();
+            });
 
-        if(data.price){
+            const data =
+            await response.json();
 
-            document.getElementById("livePrice")
-            .innerText =
+            livePrice.innerText =
             "$" +
             parseFloat(data.price)
             .toLocaleString();
 
-        }else{
+        }
 
-            document.getElementById("livePrice")
-            .innerText =
-            "Unavailable";
+        // SILVER
+
+        else if(asset === "XAGUSDT"){
+
+            const response =
+            await fetch(
+            "https://www.goldapi.io/api/XAG/USD",
+            {
+                method:"GET",
+
+                headers:{
+
+                    "x-access-token":
+                    "goldapi-cbc3ae5ebee5a95fad4327139ca82f34-io",
+
+                    "Content-Type":
+                    "application/json"
+
+                }
+
+            });
+
+            const data =
+            await response.json();
+
+            livePrice.innerText =
+            "$" +
+            parseFloat(data.price)
+            .toLocaleString();
 
         }
 
     }catch(error){
 
-        document.getElementById("livePrice")
-        .innerText =
+        livePrice.innerText =
         "Price Error";
+
+        console.log(error);
 
     }
 
@@ -744,23 +749,15 @@ function calculateTrade(){
     }
 
 
-    // RR
-
     const rr =
     (profit / loss)
     .toFixed(2);
-
-
-    // MARGIN
 
     const margin =
     (
     (entry * qty)
     / leverage
     ).toFixed(2);
-
-
-    // LIQUIDATION
 
     const liquidation =
     position === "BUY"
@@ -779,8 +776,6 @@ function calculateTrade(){
     (entry / leverage)
     ).toFixed(2);
 
-
-    // OUTPUT
 
     document.getElementById("tpPrice")
     .innerText =
@@ -825,8 +820,13 @@ document
 
     el.addEventListener(
     "input",
-    calculateTrade
-    );
+    () => {
+
+        calculateTrade();
+
+        fetchLivePrice();
+
+    });
 
 });
 
@@ -842,9 +842,38 @@ calculateTrade();
 
 setInterval(() => {
 
-    fetchLivePrice();
+    const asset =
+    document.getElementById("asset").value;
+
+    // BTC FAST REFRESH
+
+    if(asset === "BTCUSDT"){
+
+        fetchLivePrice();
+
+    }
 
 }, 3000);
+
+
+// GOLD/SILVER SLOW REFRESH
+
+setInterval(() => {
+
+    const asset =
+    document.getElementById("asset").value;
+
+    if(
+    asset === "XAUUSDT"
+    ||
+    asset === "XAGUSDT"
+    ){
+
+        fetchLivePrice();
+
+    }
+
+}, 30000);
 
 </script>
 
