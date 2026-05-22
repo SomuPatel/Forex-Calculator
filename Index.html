@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Trade Calculator Pro</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0b0f17;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:430px;
+    background:#141b26;
+    border-radius:24px;
+    padding:22px;
+    box-shadow:0 0 30px rgba(0,0,0,0.5);
+}
+
+.title{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.title h1{
+    font-size:28px;
+}
+
+.live-box{
+    background:#0d131d;
+    border:1px solid #253046;
+    border-radius:16px;
+    padding:16px;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.live-box p{
+    color:#9db0d1;
+    margin-bottom:6px;
+}
+
+.live-price{
+    font-size:30px;
+    font-weight:bold;
+    color:#00ff99;
+}
+
+.row{
+    margin-bottom:16px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    color:#a8b6cf;
+    font-size:14px;
+}
+
+input,select{
+    width:100%;
+    padding:14px;
+    border:none;
+    outline:none;
+    border-radius:14px;
+    background:#0d131d;
+    color:white;
+    border:1px solid #253046;
+    font-size:15px;
+}
+
+.toggle{
+    display:flex;
+    gap:10px;
+}
+
+.toggle button{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    background:#1c2433;
+    color:white;
+}
+
+.buy.active{
+    background:#00c853;
+    box-shadow:0 0 15px rgba(0,255,136,0.5);
+    transform:scale(1.03);
+}
+
+.sell.active{
+    background:#ff3b3b;
+    box-shadow:0 0 15px rgba(255,59,59,0.5);
+    transform:scale(1.03);
+}
+
+.result{
+    margin-top:22px;
+    background:#0d131d;
+    border:1px solid #253046;
+    border-radius:18px;
+    padding:18px;
+}
+
+.result h2{
+    margin-bottom:16px;
+}
+
+.result-item{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+    font-size:15px;
+}
+
+.green{
+    color:#00ff99;
+}
+
+.red{
+    color:#ff5c5c;
+}
+
+.yellow{
+    color:#ffcc00;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="title">
+        <h1>Trade Calculator</h1>
+    </div>
+
+    <!-- LIVE PRICE -->
+
+    <div class="live-box">
+
+        <p>Live Market Price</p>
+
+        <div class="live-price" id="livePrice">
+            Loading...
+        </div>
+
+    </div>
+
+    <!-- ASSET -->
+
+    <div class="row">
+
+        <label>Select Asset</label>
+
+        <select id="asset">
+
+            <option value="BTCUSDT">
+                BTCUSDT
+            </option>
+
+            <option value="XAGUSDT">
+                XAGUSDT
+            </option>
+
+            <option value="XAUUSDT">
+                XAUUSDT
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- POSITION -->
+
+    <div class="row">
+
+        <label>Position</label>
+
+        <div class="toggle">
+
+            <button
+            type="button"
+            class="buy active"
+            id="buyBtn">
+
+                BUY
+
+            </button>
+
+            <button
+            type="button"
+            class="sell"
+            id="sellBtn">
+
+                SELL
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ENTRY -->
+
+    <div class="row">
+
+        <label>Entry Price</label>
+
+        <input
+        type="number"
+        id="entry"
+        placeholder="Enter Entry Price">
+
+    </div>
+
+    <!-- LOT -->
+
+    <div class="row">
+
+        <label>Quantity / Lot Size</label>
+
+        <input
+        type="number"
+        id="qty"
+        placeholder="0.01">
+
+    </div>
+
+    <!-- LEVERAGE -->
+
+    <div class="row">
+
+        <label>Leverage</label>
+
+        <select id="leverage">
+
+            <option value="10">10x</option>
+            <option value="20">20x</option>
+            <option value="50">50x</option>
+            <option value="100">100x</option>
+            <option value="200">200x</option>
+
+        </select>
+
+    </div>
+
+    <!-- TP -->
+
+    <div class="row">
+
+        <label>TP Type</label>
+
+        <select id="tpType">
+
+            <option value="price">
+                By Market Price
+            </option>
+
+            <option value="amount">
+                By Amount
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="row">
+
+        <label>TP Value</label>
+
+        <input
+        type="number"
+        id="tpValue"
+        placeholder="Enter TP">
+
+    </div>
+
+    <!-- SL -->
+
+    <div class="row">
+
+        <label>SL Type</label>
+
+        <select id="slType">
+
+            <option value="price">
+                By Market Price
+            </option>
+
+            <option value="amount">
+                By Amount
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="row">
+
+        <label>SL Value</label>
+
+        <input
+        type="number"
+        id="slValue"
+        placeholder="Enter SL">
+
+    </div>
+
+    <!-- RESULT -->
+
+    <div class="result">
+
+        <h2>Trade Summary</h2>
+
+        <div class="result-item">
+            <span>TP Price</span>
+            <span id="tpPrice">-</span>
+        </div>
+
+        <div class="result-item">
+            <span>SL Price</span>
+            <span id="slPrice">-</span>
+        </div>
+
+        <div class="result-item">
+            <span>Estimated Profit</span>
+            <span class="green" id="profit">-</span>
+        </div>
+
+        <div class="result-item">
+            <span>Estimated Loss</span>
+            <span class="red" id="loss">-</span>
+        </div>
+
+        <div class="result-item">
+            <span>Risk Reward</span>
+            <span id="rr">-</span>
+        </div>
+
+        <div class="result-item">
+            <span>Required Margin</span>
+            <span id="margin">-</span>
+        </div>
+
+        <div class="result-item">
+            <span>Liquidation</span>
+            <span class="yellow" id="liq">-</span>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let position = localStorage.getItem("position") || "BUY";
+
+const buyBtn = document.getElementById("buyBtn");
+const sellBtn = document.getElementById("sellBtn");
+
+
+// RESTORE BUTTON STATE
+
+if(position === "BUY"){
+
+    buyBtn.classList.add("active");
+    sellBtn.classList.remove("active");
+
+}else{
+
+    sellBtn.classList.add("active");
+    buyBtn.classList.remove("active");
+
+}
+
+
+// BUY BUTTON
+
+buyBtn.addEventListener("click", () => {
+
+    position = "BUY";
+
+    localStorage.setItem(
+    "position",
+    "BUY"
+    );
+
+    buyBtn.classList.add("active");
+    sellBtn.classList.remove("active");
+
+    calculateTrade();
+
+});
+
+
+// SELL BUTTON
+
+sellBtn.addEventListener("click", () => {
+
+    position = "SELL";
+
+    localStorage.setItem(
+    "position",
+    "SELL"
+    );
+
+    sellBtn.classList.add("active");
+    buyBtn.classList.remove("active");
+
+    calculateTrade();
+
+});
+
+
+// LOCAL STORAGE FIELDS
+
+const fields = [
+
+    "asset",
+    "entry",
+    "qty",
+    "leverage",
+    "tpType",
+    "tpValue",
+    "slType",
+    "slValue"
+
+];
+
+
+// RESTORE VALUES
+
+fields.forEach(id => {
+
+    const el =
+    document.getElementById(id);
+
+    const saved =
+    localStorage.getItem(id);
+
+    if(saved){
+
+        el.value = saved;
+
+    }
+
+});
+
+
+// SAVE VALUES
+
+fields.forEach(id => {
+
+    const el =
+    document.getElementById(id);
+
+    el.addEventListener(
+    "input",
+    () => {
+
+        localStorage.setItem(
+        id,
+        el.value
+        );
+
+    });
+
+    el.addEventListener(
+    "change",
+    () => {
+
+        localStorage.setItem(
+        id,
+        el.value
+        );
+
+        if(id === "asset"){
+
+            fetchLivePrice();
+
+        }
+
+        calculateTrade();
+
+    });
+
+});
+
+
+// LIVE PRICE
+
+async function fetchLivePrice(){
+
+    const asset =
+    document.getElementById("asset").value;
+
+    try{
+
+        let url = "";
+
+        // BTC
+
+        if(asset === "BTCUSDT"){
+
+            url =
+            "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
+
+        }
+
+        // SILVER
+
+        else if(asset === "XAGUSDT"){
+
+            // Demo price because Binance unsupported
+
+            document.getElementById("livePrice")
+            .innerText =
+            "$75.56";
+
+            return;
+
+        }
+
+        // GOLD
+
+        else if(asset === "XAUUSDT"){
+
+            // Demo price because Binance unsupported
+
+            document.getElementById("livePrice")
+            .innerText =
+            "$4509.72";
+
+            return;
+
+        }
+
+        const response =
+        await fetch(url);
+
+        const data =
+        await response.json();
+
+        if(data.price){
+
+            document.getElementById("livePrice")
+            .innerText =
+            "$" +
+            parseFloat(data.price)
+            .toLocaleString();
+
+        }else{
+
+            document.getElementById("livePrice")
+            .innerText =
+            "Unavailable";
+
+        }
+
+    }catch(error){
+
+        document.getElementById("livePrice")
+        .innerText =
+        "Price Error";
+
+    }
+
+}
+
+
+// MAIN CALCULATION
+
+function calculateTrade(){
+
+    const entry =
+    parseFloat(
+    document.getElementById("entry").value
+    );
+
+    const qty =
+    parseFloat(
+    document.getElementById("qty").value
+    );
+
+    const leverage =
+    parseFloat(
+    document.getElementById("leverage").value
+    );
+
+    const tpType =
+    document.getElementById("tpType").value;
+
+    const slType =
+    document.getElementById("slType").value;
+
+    const tpValue =
+    parseFloat(
+    document.getElementById("tpValue").value
+    );
+
+    const slValue =
+    parseFloat(
+    document.getElementById("slValue").value
+    );
+
+    if(
+    !entry ||
+    !qty ||
+    !tpValue ||
+    !slValue
+    ){
+        return;
+    }
+
+    let tpPrice;
+    let slPrice;
+
+    let profit;
+    let loss;
+
+
+    // TP
+
+    if(tpType === "price"){
+
+        tpPrice = tpValue;
+
+        if(position === "BUY"){
+
+            profit =
+            ((tpPrice - entry)
+            * qty)
+            * leverage;
+
+        }else{
+
+            profit =
+            ((entry - tpPrice)
+            * qty)
+            * leverage;
+
+        }
+
+    }else{
+
+        profit = tpValue;
+
+        if(position === "BUY"){
+
+            tpPrice =
+            entry +
+            (
+            profit /
+            (qty * leverage)
+            );
+
+        }else{
+
+            tpPrice =
+            entry -
+            (
+            profit /
+            (qty * leverage)
+            );
+
+        }
+
+    }
+
+
+    // SL
+
+    if(slType === "price"){
+
+        slPrice = slValue;
+
+        if(position === "BUY"){
+
+            loss =
+            ((entry - slPrice)
+            * qty)
+            * leverage;
+
+        }else{
+
+            loss =
+            ((slPrice - entry)
+            * qty)
+            * leverage;
+
+        }
+
+    }else{
+
+        loss = slValue;
+
+        if(position === "BUY"){
+
+            slPrice =
+            entry -
+            (
+            loss /
+            (qty * leverage)
+            );
+
+        }else{
+
+            slPrice =
+            entry +
+            (
+            loss /
+            (qty * leverage)
+            );
+
+        }
+
+    }
+
+
+    // RR
+
+    const rr =
+    (profit / loss)
+    .toFixed(2);
+
+
+    // MARGIN
+
+    const margin =
+    (
+    (entry * qty)
+    / leverage
+    ).toFixed(2);
+
+
+    // LIQUIDATION
+
+    const liquidation =
+    position === "BUY"
+
+    ?
+
+    (
+    entry -
+    (entry / leverage)
+    ).toFixed(2)
+
+    :
+
+    (
+    entry +
+    (entry / leverage)
+    ).toFixed(2);
+
+
+    // OUTPUT
+
+    document.getElementById("tpPrice")
+    .innerText =
+    "$" +
+    tpPrice.toFixed(2);
+
+    document.getElementById("slPrice")
+    .innerText =
+    "$" +
+    slPrice.toFixed(2);
+
+    document.getElementById("profit")
+    .innerText =
+    "$" +
+    profit.toFixed(2);
+
+    document.getElementById("loss")
+    .innerText =
+    "$" +
+    loss.toFixed(2);
+
+    document.getElementById("rr")
+    .innerText =
+    "1 : " + rr;
+
+    document.getElementById("margin")
+    .innerText =
+    "$" + margin;
+
+    document.getElementById("liq")
+    .innerText =
+    "$" + liquidation;
+
+}
+
+
+// AUTO CALCULATION
+
+document
+.querySelectorAll("input, select")
+.forEach(el => {
+
+    el.addEventListener(
+    "input",
+    calculateTrade
+    );
+
+});
+
+
+// INITIAL LOAD
+
+fetchLivePrice();
+
+calculateTrade();
+
+
+// LIVE REFRESH
+
+setInterval(() => {
+
+    fetchLivePrice();
+
+}, 3000);
+
+</script>
+
+</body>
+</html>
