@@ -45,37 +45,10 @@ body{
     font-size:28px;
 }
 
-.live-box{
-    background:#0d131d;
-    border:1px solid #253046;
-    border-radius:16px;
-    padding:16px;
-    text-align:center;
+.tv-widget{
     margin-bottom:20px;
-}
-
-.live-box p{
-    color:#9db0d1;
-    margin-bottom:6px;
-}
-
-.live-price{transition:0.3s;
-}
-
-.price-up{
-    color:#00ff99 !important;
-    text-shadow:0 0 20px #00ff99;
-    transform:scale(1.08);
-}
-
-.price-down{
-    color:#ff4d4d !important;
-    text-shadow:0 0 20px #ff4d4d;
-    transform:scale(1.08);
-}
-    font-size:30px;
-    font-weight:bold;
-    color:#00ff99;
+    border-radius:16px;
+    overflow:hidden;
 }
 
 .row{
@@ -122,13 +95,11 @@ input,select{
 .buy.active{
     background:#00c853;
     box-shadow:0 0 15px rgba(0,255,136,0.5);
-    transform:scale(1.03);
 }
 
 .sell.active{
     background:#ff3b3b;
     box-shadow:0 0 15px rgba(255,59,59,0.5);
-    transform:scale(1.03);
 }
 
 .result{
@@ -174,15 +145,17 @@ input,select{
         <h1>Trade Calculator</h1>
     </div>
 
-    <!-- LIVE PRICE -->
+    <!-- TRADINGVIEW -->
 
-    <div class="live-box">
+    <div class="tv-widget">
 
-        <p>Live Market Price</p>
-
-        <div class="live-price" id="livePrice">
-            Loading...
-        </div>
+        <iframe
+        id="tvFrame"
+        src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=BINANCE:BTCUSDT&interval=1&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0b0f17&theme=dark"
+        width="100%"
+        height="300"
+        frameborder="0">
+        </iframe>
 
     </div>
 
@@ -198,12 +171,12 @@ input,select{
                 BTCUSDT
             </option>
 
-            <option value="XAGUSDT">
-                XAGUSDT
+            <option value="XAUUSD">
+                XAUUSD
             </option>
 
-            <option value="XAUUSDT">
-                XAUUSDT
+            <option value="XAGUSD">
+                XAGUSD
             </option>
 
         </select>
@@ -393,9 +366,7 @@ input,select{
 
 <script>
 
-let position =
-localStorage.getItem("position")
-|| "BUY";
+let position = "BUY";
 
 const buyBtn =
 document.getElementById("buyBtn");
@@ -404,216 +375,71 @@ const sellBtn =
 document.getElementById("sellBtn");
 
 
-// BUTTON STATE
-
-if(position === "BUY"){
-
-    buyBtn.classList.add("active");
-
-}else{
-
-    sellBtn.classList.add("active");
-
-    buyBtn.classList.remove("active");
-
-}
-
-
 // BUY
 
-buyBtn.addEventListener("click", () => {
+buyBtn.onclick = () => {
 
     position = "BUY";
-
-    localStorage.setItem(
-    "position",
-    "BUY"
-    );
 
     buyBtn.classList.add("active");
 
     sellBtn.classList.remove("active");
 
-    calculateTrade();
-
-});
+};
 
 
 // SELL
 
-sellBtn.addEventListener("click", () => {
+sellBtn.onclick = () => {
 
     position = "SELL";
-
-    localStorage.setItem(
-    "position",
-    "SELL"
-    );
 
     sellBtn.classList.add("active");
 
     buyBtn.classList.remove("active");
 
-    calculateTrade();
-
-});
+};
 
 
-// SAVE FIELDS
+// TRADINGVIEW CHANGE
 
-const fields = [
-
-    "asset",
-    "entry",
-    "qty",
-    "leverage",
-    "tpType",
-    "tpValue",
-    "slType",
-    "slValue"
-
-];
-
-fields.forEach(id => {
-
-    const el =
-    document.getElementById(id);
-
-    // RESTORE
-
-    const saved =
-    localStorage.getItem(id);
-
-    if(saved){
-
-        el.value = saved;
-
-    }
-
-    // SAVE
-
-    el.addEventListener(
-    "input",
-    () => {
-
-        localStorage.setItem(
-        id,
-        el.value
-        );
-
-    });
-
-});
-
-
-// LIVE PRICE FUNCTION
-
-async function fetchLivePrice(){
+document.getElementById("asset")
+.addEventListener("change", () => {
 
     const asset =
     document.getElementById("asset").value;
 
-    const livePrice =
-    document.getElementById("livePrice");
+    let symbol = "";
 
-    try{
+    if(asset === "BTCUSDT"){
 
-        // BTC
-
-        if(asset === "BTCUSDT"){
-
-            const response =
-            await fetch(
-            "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
-            );
-
-            const data =
-            await response.json();
-
-            livePrice.innerText =
-            "$" +
-            parseFloat(data.price)
-            .toLocaleString();
-
-        }
-
-        // GOLD
-
-        else if(asset === "XAUUSDT"){
-
-            const response =
-            await fetch(
-            "https://www.goldapi.io/api/XAU/USD",
-            {
-                method:"GET",
-
-                headers:{
-
-                    "x-access-token":
-                    "goldapi-cbc3ae5ebee5a95fad4327139ca82f34-io",
-
-                    "Content-Type":
-                    "application/json"
-
-                }
-
-            });
-
-            const data =
-            await response.json();
-
-            livePrice.innerText =
-            "$" +
-            parseFloat(data.price)
-            .toLocaleString();
-
-        }
-
-        // SILVER
-
-        else if(asset === "XAGUSDT"){
-
-            const response =
-            await fetch(
-            "https://www.goldapi.io/api/XAG/USD",
-            {
-                method:"GET",
-
-                headers:{
-
-                    "x-access-token":
-                    "goldapi-cbc3ae5ebee5a95fad4327139ca82f34-io",
-
-                    "Content-Type":
-                    "application/json"
-
-                }
-
-            });
-
-            const data =
-            await response.json();
-
-            livePrice.innerText =
-            "$" +
-            parseFloat(data.price)
-            .toLocaleString();
-
-        }
-
-    }catch(error){
-
-        livePrice.innerText =
-        "Price Error";
-
-        console.log(error);
+        symbol =
+        "BINANCE:BTCUSDT";
 
     }
 
-}
+    else if(asset === "XAUUSD"){
+
+        symbol =
+        "OANDA:XAUUSD";
+
+    }
+
+    else if(asset === "XAGUSD"){
+
+        symbol =
+        "OANDA:XAGUSD";
+
+    }
+
+    document.getElementById("tvFrame")
+    .src =
+    `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=${symbol}&interval=1&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0b0f17&theme=dark`;
+
+});
 
 
-// MAIN CALCULATION
+// CALCULATION
 
 function calculateTrade(){
 
@@ -824,71 +650,19 @@ function calculateTrade(){
 
 }
 
-
-// AUTO CALCULATION
-
 document
 .querySelectorAll("input, select")
 .forEach(el => {
 
     el.addEventListener(
     "input",
-    () => {
-
-        calculateTrade();
-
-        fetchLivePrice();
-
-    });
+    calculateTrade
+    );
 
 });
-
-
-// INITIAL LOAD
-
-fetchLivePrice();
-
-calculateTrade();
-
-
-// LIVE REFRESH
-
-setInterval(() => {
-
-    const asset =
-    document.getElementById("asset").value;
-
-    // BTC FAST REFRESH
-
-    if(asset === "BTCUSDT"){
-
-        fetchLivePrice();
-
-    }
-
-}, 3000);
-
-
-// GOLD/SILVER SLOW REFRESH
-
-setInterval(() => {
-
-    const asset =
-    document.getElementById("asset").value;
-
-    if(
-    asset === "XAUUSDT"
-    ||
-    asset === "XAGUSDT"
-    ){
-
-        fetchLivePrice();
-
-    }
-
-}, 30000);
 
 </script>
 
 </body>
+
 </html>
